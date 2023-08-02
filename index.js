@@ -33,7 +33,7 @@ app.use(addressRoutes);
 app.use(orderRoutes);
 
 app.get("/", function (req, res) {
-  res.send("Hello World");
+  res.send("Api is running Well!");
 });
 app.listen(process.env.PORT || 4000, () => {
   console.log("App running in port 4000");

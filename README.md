@@ -42,7 +42,7 @@ Prerequisites
 # Installing:
 
 - Clone the repository
-- git clone https://github.com/nluthfis/PijarFood
+- git clone https://github.com/nluthfis/blanja-be.git
 
 # Install dependencies:
 
