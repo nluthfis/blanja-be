@@ -8,30 +8,31 @@ const getAllProduct = async () => {
     return error;
   }
 };
-const getProductByKeyword = async (keyword, sort) => {
+const getProductByKeyword = async (keyword) => {
   try {
     const query =
-      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_name) ILIKE LOWER(${keyword}) ORDER BY "date_created" ${sort}`;
+      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_name) ILIKE LOWER(${keyword}) ORDER BY "date_created" DESC`;
     return query;
   } catch (error) {
     return error;
   }
 };
-const getProductByReview = async () => {
+const getProductByReview = async (sort) => {
   try {
     const query =
-      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.* 
+      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.*, count(*) OVER() as full_count
       FROM product LEFT JOIN product_review ON product_review.product_id = product.product_id 
-      GROUP BY product.product_id ORDER BY score DESC`;
+      GROUP BY product.product_id ORDER BY score ${sort}`;
     return query;
   } catch (error) {
     return error;
   }
 };
+
 const getProductByCategory = async (category, sort) => {
   try {
     const query =
-      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_category) ILIKE LOWER(${category}) ORDER BY "date_created" ${sort}`;
+      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_category) ILIKE LOWER(${category}) ORDER BY "date_created" `;
     return query;
   } catch (error) {
     return error;
@@ -51,20 +52,27 @@ const getProductByKeywordCategory = async (keyword, category, sort) => {
 const getProductBySort = async (sort) => {
   try {
     const query =
-      await db`SELECT *, count(*) OVER() as full_count FROM product ORDER BY "date_created" ${sort}`;
+      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.*, count(*) OVER() as full_count
+      FROM product LEFT JOIN product_review ON product_review.product_id = product.product_id 
+      GROUP BY product.product_id ORDER BY date_created ${sort}`;
     return query;
   } catch (error) {
     return error;
   }
 };
+
 const getProductById = async (id) => {
   try {
-    const query = await db`SELECT * FROM product WHERE product_id = ${id}`;
+    const query =
+      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.* 
+      FROM product LEFT JOIN product_review ON product_review.product_id = product.product_id WHERE product.product_id = ${id}
+      GROUP BY product.product_id`;
     return query;
   } catch (error) {
     return error;
   }
 };
+
 const getProductByProductId = async (product_id) => {
   try {
     const query =

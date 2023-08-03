@@ -26,28 +26,28 @@ async function getProduct(req, res) {
 
     if (req?.query?.sortType?.toLowerCase() === "asc") {
       if (isPaginate) {
-        sort = db`ASC LIMIT 15 OFFSET ${15 * (parseInt(req?.query?.page) - 1)}`;
+        sort = db`ASC LIMIT 10 OFFSET ${10 * (parseInt(req?.query?.page) - 1)}`;
       } else {
         sort = db`ASC`;
       }
     }
 
     if (isPaginate && !req?.query?.sortType) {
-      sort = db`DESC LIMIT 15 OFFSET ${15 * (parseInt(req?.query?.page) - 1)}`;
+      sort = db`DESC LIMIT 10 OFFSET ${10 * (parseInt(req?.query?.page) - 1)}`;
     }
 
-    // ketika memasukkan keyword
+    // ketika memasukkan keyword dan category
     if (req?.query?.keyword && req?.query?.category) {
       query = await model.getProductByKeywordCategory(keyword, category, sort);
       // ketika memasukkan category
     } else if (req?.query?.category) {
-      query = await model.getProductByCategory(category, sort);
+      query = await model.getProductByCategory(category);
       // ketika memasukkan keyword dan kategory maka data yang muncul adalah dari keyword dan category
     } else if (req?.query?.keyword) {
-      query = await model.getProductByKeyword(keyword, sort);
+      query = await model.getProductByKeyword(keyword);
       // ketika memasukkan by dengan review
     } else if (by === "review") {
-      query = await model.getProductByReview();
+      query = await model.getProductByReview(sort);
     } else {
       query = await model.getProductBySort(sort);
     }
@@ -74,7 +74,7 @@ async function getProduct(req, res) {
         ? {
             current: parseInt(req?.query?.page),
             total: product_with_photo?.[0]?.full_count
-              ? Math.ceil(parseInt(product_with_photo?.[0]?.full_count) / 15)
+              ? Math.ceil(parseInt(product_with_photo?.[0]?.full_count) / 10)
               : 0,
           }
         : null,
@@ -141,7 +141,6 @@ async function getProductById(req, res) {
       });
       return;
     }
-
     const data = await model.getProductById(id);
 
     if (!data.length) {
