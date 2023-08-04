@@ -50,7 +50,7 @@ const insertProfileUserss = async (payload) => {
     const query = await db`INSERT INTO userss ${db(
       payload,
       "user_id",
-      "user_name",
+      "user_name"
     )} returning *`;
 
     console.log(query);
@@ -100,7 +100,7 @@ const deleteProfile = async (user_id) => {
     return error;
   }
 };
-const editUsersPhoto = async (user_id) => {
+const editUsersPhoto = async (payload, user_id) => {
   try {
     const query = await db`UPDATE users set ${db(
       payload,

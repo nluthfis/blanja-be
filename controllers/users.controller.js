@@ -468,7 +468,7 @@ async function editUsersPhoto(req, res) {
             const payload = {
               user_photo: data?.secure_url,
             };
-
+            console.log(payload);
             await model.editUsersPhoto(payload, user_id);
 
             res.status(200).send({

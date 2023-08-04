@@ -41,7 +41,7 @@ const addOrder = async (payload) => {
 const getOrderByOrderId = async (order_id, user_id) => {
   try {
     const query =
-      await db`SELECT * FROM product_order WHERE order_id = ${order_id} AND user_id = ${user_id}`;
+      await db`SELECT * FROM product_order WHERE order_id = ${order_id} AND user_id = ${user_id} `;
     return query;
   } catch (error) {
     return error;

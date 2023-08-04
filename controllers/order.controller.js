@@ -330,13 +330,13 @@ async function createPayment(req, res) {
       },
     };
 
-     const transaction = await snap.createTransaction(parameter);
-     const transactionToken = transaction.token;
+    const transaction = await snap.createTransaction(parameter);
+    const transactionToken = transaction.token;
 
-     const payloadUpdate = {
-       transaction_token: transactionToken,
-     };
-     const updateData = await modelOrder.updatePaymentToken(payloadUpdate);
+    const payloadUpdate = {
+      transaction_token: transactionToken,
+    };
+    const updateData = await modelOrder.updatePaymentToken(payloadUpdate);
 
     const url = `https://api.sandbox.midtrans.com/v2/${getPaymentId}/status`;
     const response = await axios.get(url, {
@@ -370,7 +370,7 @@ async function createPayment(req, res) {
     res.status(500).json({
       status: false,
       message: "Internal Server Error",
-      error: error
+      error: error,
     });
   }
 }
