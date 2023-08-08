@@ -262,7 +262,6 @@ async function deleteOrder(req, res) {
     }
 
     const checkOrder = await modelOrder.checkOrder(order_id, user_id);
-    console.log(checkOrder);
 
     if (!checkOrder.length) {
       return res.status(400).json({
