@@ -30,7 +30,6 @@ const addOrder = async (payload) => {
       "product_size",
       "product_color",
       "total_price",
-      "address_id",
       "shipping_price"
     )} returning *`;
     return query;
@@ -50,16 +49,18 @@ const getOrderByOrderId = async (order_id, user_id) => {
 const getOrderWithAddress = async (user_id) => {
   try {
     const query = await db`
-    SELECT product_order.*, address.*
-    FROM product_order
-    JOIN address ON product_order.address_id = CAST(address.address_id AS character varying)
-    WHERE product_order.user_id = ${user_id}
-  `;
+      SELECT product_order.*, address.* 
+      FROM product_order
+      JOIN address ON product_order.address_id = CAST(address.address_id AS character varying)
+      JOIN product ON product_order.product_id = product.product_id
+      WHERE product_order.user_id = ${user_id}
+    `;
     return query;
   } catch (error) {
     return error;
   }
 };
+
 const checkOrder = async (order_id, user_id) => {
   try {
     const query =

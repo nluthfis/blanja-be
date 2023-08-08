@@ -41,7 +41,7 @@ async function getProduct(req, res) {
       query = await model.getProductByKeywordCategory(keyword, category, sort);
       // ketika memasukkan category
     } else if (req?.query?.category) {
-      query = await model.getProductByCategory(category);
+      query = await model.getProductByCategory(category, sort);
       // ketika memasukkan keyword dan kategory maka data yang muncul adalah dari keyword dan category
     } else if (req?.query?.keyword) {
       query = await model.getProductByKeyword(keyword);

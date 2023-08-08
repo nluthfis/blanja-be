@@ -28,11 +28,13 @@ const getProductByReview = async (sort) => {
     return error;
   }
 };
-
 const getProductByCategory = async (category, sort) => {
   try {
     const query =
-      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_category) ILIKE LOWER(${category}) ORDER BY "date_created" `;
+      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.*, count(*) OVER() as full_count
+      FROM product LEFT JOIN product_review ON product_review.product_id = product.product_id 
+      WHERE LOWER(product.product_category) ILIKE LOWER(${category})
+      GROUP BY product.product_id ORDER BY date_created ${sort}`;
     return query;
   } catch (error) {
     return error;
@@ -60,7 +62,6 @@ const getProductBySort = async (sort) => {
     return error;
   }
 };
-
 const getProductById = async (id) => {
   try {
     const query =
@@ -72,7 +73,6 @@ const getProductById = async (id) => {
     return error;
   }
 };
-
 const getProductByProductId = async (product_id) => {
   try {
     const query =

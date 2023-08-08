@@ -24,15 +24,16 @@ async function createOrder(req, res) {
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
 
-    const { product_id, product_size, product_color, total_product, adds_id } =
-      req.body;
+    // const { product_id, product_size, product_color, total_product, adds_id } =
+    //   req.body;
+    const { product_id, product_size, product_color, total_product } = req.body;
 
     if (
       !product_id ||
       !product_size ||
       !product_color ||
-      !total_product ||
-      !adds_id
+      !total_product
+      // !adds_id
     ) {
       return res.status(400).json({
         status: false,
@@ -41,6 +42,7 @@ async function createOrder(req, res) {
     }
 
     const getProduct = await model.getProductByProductId(product_id);
+    console.log(getProduct);
 
     if (!getProduct.length) {
       return res.status(400).json({
@@ -48,9 +50,6 @@ async function createOrder(req, res) {
         message: "Product not availabe",
       });
     }
-
-    console.log(getProduct[0].product_size);
-    console.log(product_size);
 
     if (!getProduct[0].product_size.split(", ").includes(product_size)) {
       return res.status(400).json({
@@ -74,22 +73,22 @@ async function createOrder(req, res) {
       });
     }
 
-    const get_address = await modelAddress.getAddressById(adds_id);
-    console.log(get_address);
+    // const get_address = await modelAddress.getAddressById(adds_id);
+    // console.log(get_address);
 
-    if (!get_address.length) {
-      return res.status(400).json({
-        status: false,
-        message: "Address not found",
-      });
-    }
+    // if (!get_address.length) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "Address not found",
+    //   });
+    // }
 
-    if (get_address[0].user_id !== user_id) {
-      return res.status(400).json({
-        status: false,
-        message: "You are not allowed to use this address",
-      });
-    }
+    // if (get_address[0].user_id !== user_id) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "You are not allowed to use this address",
+    //   });
+    // }
 
     const seller_id = getProduct[0].seller_id;
     const productPrice = getProduct[0].product_price;
@@ -104,16 +103,18 @@ async function createOrder(req, res) {
       total_product: total_product,
       shipping_price: shipping_price,
       seller_id: seller_id,
-      address_id: adds_id,
+      // address_id: adds_id,
       total_price: totalPrice,
     };
 
     data = await modelOrder.addOrder(payload);
 
+    fulldata = [[...getProduct, ...data]];
+
     res.json({
       status: true,
       message: "Get data success",
-      data: data,
+      data: fulldata,
     });
   } catch (error) {
     console.log(error);
@@ -129,13 +130,26 @@ async function getAllOrder(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
+    const query = await modelOrder.getOrder(user_id);
+    // const query = await modelOrder.getOrderWithAddress(user_id);
 
-    const query = await modelOrder.getOrderWithAddress(user_id);
+    const product_order_data = [];
+    for (const product of query) {
+      const product_id = product.product_id;
+      const photo_data = await modelProduct.getPhotoProduct(product_id);
+      const product_data = await modelProduct.getProductById(product_id);
+      const order_data = {
+        ...product,
+        path: photo_data,
+        product: product_data,
+      };
+      product_order_data.push(order_data);
+    }
 
     res.json({
       status: true,
       message: "Get data success",
-      data: query,
+      data: product_order_data,
     });
   } catch (error) {
     console.log(error);
@@ -354,8 +368,8 @@ async function createPayment(req, res) {
       status: payment_status,
     };
 
-    const checkStatusPayment = await modelOrder.checkStatus(payloadStatus);
-
+    // const checkStatusPayment = await modelOrder.checkStatus(payloadStatus);
+    await modelOrder.checkStatus(payloadStatus);
     res.send({
       status: true,
       message: "Success Create payment",

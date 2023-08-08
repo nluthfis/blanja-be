@@ -256,24 +256,22 @@ async function editCustomer(req, res) {
                 : checkData[0].date_of_birth,
           };
 
-          console.log(payload);
-
           let query;
           if (user_password) {
-            bcrypt.genSalt(
-              saltRounds,
-              await function (err, salt) {
-                bcrypt.hash(user_password, salt, async function (err, hash) {
-                  query = await model.editCustomer(
-                    { ...payload, user_password: hash },
-                    user_id
-                  );
-                });
-              }
-            );
+            try {
+              const salt = await bcrypt.genSalt(saltRounds);
+              const hash = await bcrypt.hash(user_password, salt);
+              query = await model.editCustomer(
+                { ...payload, user_password: hash },
+                user_id
+              );
+            } catch (err) {
+              console.log(err);
+            }
           } else {
             query = await model.editCustomer(payload, user_id);
           }
+
           res.send({
             status: true,
             message: "Success edit data",
@@ -468,7 +466,6 @@ async function editUsersPhoto(req, res) {
             const payload = {
               user_photo: data?.secure_url,
             };
-            console.log(payload);
             await model.editUsersPhoto(payload, user_id);
 
             res.status(200).send({
