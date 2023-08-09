@@ -299,7 +299,6 @@ async function createPayment(req, res) {
     const user_id = decoded.user_id;
 
     const get_customer = await modelUser.getProfileById(user_id);
-    console.log(get_customer);
 
     const get_order = await modelOrder.getOrder(user_id);
 
@@ -379,7 +378,7 @@ async function createPayment(req, res) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.response);
     res.status(500).json({
       status: false,
       message: "Internal Server Error",
