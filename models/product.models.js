@@ -11,7 +11,9 @@ const getAllProduct = async () => {
 const getProductByKeyword = async (keyword) => {
   try {
     const query =
-      await db`SELECT *, count(*) OVER() as full_count FROM product WHERE LOWER(product.product_name) ILIKE LOWER(${keyword}) ORDER BY "date_created" DESC`;
+      await db`SELECT COALESCE(ROUND(AVG(product_review.review_score),1),0) AS score, product.*, count(*) OVER() as full_count
+      FROM product LEFT JOIN product_review ON product_review.product_id = product.product_id WHERE LOWER(product.product_name) ILIKE LOWER(${keyword}) 
+      GROUP BY product.product_id ORDER BY "date_created" DESC`;
     return query;
   } catch (error) {
     return error;
