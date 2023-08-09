@@ -96,12 +96,12 @@ async function insertAddress(req, res) {
     }
 
     if (
-      recipient_phone_number.length < 10 ||
-      recipient_phone_number.length > 13
+      recipient_phone_number.length < 8 ||
+      recipient_phone_number.length > 18
     ) {
       res.status(400).json({
         status: false,
-        message: "Phone number must be 10-13 digits",
+        message: "Phone number must be 8-18 digits",
       });
       return;
     }
@@ -154,7 +154,6 @@ async function editAddress(req, res) {
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
     const adds_id = Number(req.body.adds_id);
-    console.log(user_id);
     const {
       address_name,
       recipient_name,
@@ -217,7 +216,6 @@ async function editAddress(req, res) {
     }
 
     const data = await modelAddress.getAddress(user_id);
-    // console.log(data);
 
     if (!data.length) {
       res.status(404).json({
@@ -272,7 +270,6 @@ async function deleteAddress(req, res) {
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
     const adds_id = Number(req.body.adds_id);
-    console.log(adds_id);
 
     const data = await modelAddress.getAddress(user_id, adds_id);
     if (!data.length) {
@@ -283,7 +280,6 @@ async function deleteAddress(req, res) {
       return;
     }
     const addressIds = data.map((row) => row.address_id);
-    console.log(addressIds);
     if (!addressIds.includes(adds_id)) {
       res.status(400).json({
         status: false,

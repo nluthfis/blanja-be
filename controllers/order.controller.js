@@ -323,7 +323,8 @@ async function createPayment(req, res) {
     const get_payment_id = await modelOrder.getPaymentId(user_id);
     const getPaymentId = get_payment_id[0].payment_id;
 
-    // console.log(get_payment_id);
+    const { v4: uuidv4 } = require("uuid");
+    const orderId = uuidv4();
 
     let snap = new midtransClient.Snap({
       // Set to true if you want Production Environment (accept real transaction).
@@ -332,7 +333,7 @@ async function createPayment(req, res) {
     });
     let parameter = {
       transaction_details: {
-        order_id: getPaymentId,
+        order_id: orderId,
         gross_amount: totalPayment,
       },
       customer_details: {
@@ -378,11 +379,17 @@ async function createPayment(req, res) {
       },
     });
   } catch (error) {
-    console.log(error.response);
+    if (error.response) {
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    } else {
+      console.log(error);
+    }
     res.status(500).json({
       status: false,
       message: "Internal Server Error",
-      error: error,
+      error: error.message,
     });
   }
 }
