@@ -73,23 +73,6 @@ async function createOrder(req, res) {
       });
     }
 
-    // const get_address = await modelAddress.getAddressById(adds_id);
-    // console.log(get_address);
-
-    // if (!get_address.length) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "Address not found",
-    //   });
-    // }
-
-    // if (get_address[0].user_id !== user_id) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "You are not allowed to use this address",
-    //   });
-    // }
-
     const seller_id = getProduct[0].seller_id;
     const productPrice = getProduct[0].product_price;
     const shipping_price = 20000;
@@ -104,7 +87,6 @@ async function createOrder(req, res) {
       total_product: total_product,
       shipping_price: shipping_price,
       seller_id: seller_id,
-      // address_id: adds_id,
       total_price: totalPrice,
       status: "order_created",
     };
