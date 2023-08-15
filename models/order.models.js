@@ -125,12 +125,12 @@ const updatePaymentToken = async (payload) => {
     return error;
   }
 };
-const checkStatus = async (payloadStatus) => {
+const checkStatus = async (payloadStatus, orderId) => {
   try {
     const query = await db`UPDATE payment SET ${db(
       payloadStatus,
       "status"
-    )} returning *`;
+    )} WHERE order_id = ${orderId} returning *`;
     return query;
   } catch (error) {
     return error;

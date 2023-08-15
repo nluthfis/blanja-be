@@ -345,7 +345,6 @@ async function createPayment(req, res) {
     };
 
     const transaction = await snap.createTransaction(parameter);
-    console.log(transaction);
     const transactionToken = transaction.token;
 
     const payloadUpdate = {
@@ -369,9 +368,8 @@ async function createPayment(req, res) {
     const payloadStatus = {
       status: payment_status,
     };
-
-    // const checkStatusPayment = await modelOrder.checkStatus(payloadStatus);
-    await modelOrder.checkStatus(payloadStatus);
+    console.log(orderId);
+    await modelOrder.checkStatus(payloadStatus, orderId);
     res.send({
       status: true,
       message: "Success Create payment",
