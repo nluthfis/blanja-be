@@ -16,4 +16,6 @@ router.post("/create-payment", middleware, orderController.createPayment);
 
 router.get("/check-status", middleware, orderController.checkStatus);
 
+router.patch("/update-status", orderController.updateStatus);
+
 module.exports = router;

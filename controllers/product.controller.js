@@ -255,6 +255,7 @@ async function insertProduct(req, res) {
     };
 
     data = await model.insertProductData(payload);
+    console.log(data);
 
     const product_id = data[0].product_id;
     console.log(product_id);
@@ -272,6 +273,7 @@ async function insertProduct(req, res) {
         public_id: new Date().toISOString(),
       });
       upload.then(async (data) => {
+        console.log(product_id);
         const payload = {
           photo_path: data?.secure_url,
           product_id: product_id,

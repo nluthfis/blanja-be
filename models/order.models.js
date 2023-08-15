@@ -97,7 +97,8 @@ const insertPayment = async (payload) => {
     const query = await db`INSERT INTO payment ${db(
       payload,
       "user_id",
-      "total_payment"
+      "total_payment",
+      "order_id"
     )} returning *`;
     return query;
   } catch (error) {

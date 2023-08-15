@@ -313,18 +313,19 @@ async function createPayment(req, res) {
 
     totalPayment = get_price[0].total_price_sum;
 
+    const { v4: uuidv4 } = require("uuid");
+    const orderId = uuidv4();
+
     const payload = {
       user_id: user_id,
       total_payment: totalPayment,
+      order_id: orderId,
     };
 
     const data = await modelOrder.insertPayment(payload);
 
     const get_payment_id = await modelOrder.getPaymentId(user_id);
     const getPaymentId = get_payment_id[0].payment_id;
-
-    const { v4: uuidv4 } = require("uuid");
-    const orderId = uuidv4();
 
     let snap = new midtransClient.Snap({
       // Set to true if you want Production Environment (accept real transaction).
@@ -344,11 +345,13 @@ async function createPayment(req, res) {
     };
 
     const transaction = await snap.createTransaction(parameter);
+    console.log(transaction);
     const transactionToken = transaction.token;
 
     const payloadUpdate = {
       transaction_token: transactionToken,
     };
+
     const updateData = await modelOrder.updatePaymentToken(payloadUpdate);
 
     const url = `https://api.sandbox.midtrans.com/v2/${getPaymentId}/status`;
@@ -430,6 +433,35 @@ async function checkStatus(req, res) {
   }
 }
 
+async function updateStatus(req, res) {
+  try {
+    const { order_id } = req.body;
+
+    console.log(req.body, "req");
+
+    const payload = {
+      status: "Success",
+    };
+
+    await db`UPDATE payment SET ${db(
+      payload,
+      "status"
+    )} WHERE order_id = ${order_id} 
+    returning *`;
+
+    res.json({
+      status: true,
+      message: "Update order success",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+    });
+  }
+}
+
 module.exports = {
   getAllOrder,
   createOrder,
@@ -437,4 +469,5 @@ module.exports = {
   checkStatus,
   deleteOrder,
   editOrder,
+  updateStatus,
 };
