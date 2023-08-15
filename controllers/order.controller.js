@@ -94,6 +94,7 @@ async function createOrder(req, res) {
     const productPrice = getProduct[0].product_price;
     const shipping_price = 20000;
     const totalPrice = productPrice * total_product + shipping_price;
+    const statusOrder = "order_created";
 
     const payload = {
       product_id: getProduct[0].product_id,
@@ -105,6 +106,7 @@ async function createOrder(req, res) {
       seller_id: seller_id,
       // address_id: adds_id,
       total_price: totalPrice,
+      status: statusOrder,
     };
 
     data = await modelOrder.addOrder(payload);
@@ -130,7 +132,7 @@ async function getAllOrder(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
-    const query = await modelOrder.getOrder(user_id);
+    const query = await modelOrder.getOrderStatus(user_id);
     // const query = await modelOrder.getOrderWithAddress(user_id);
 
     const product_order_data = [];
@@ -300,7 +302,8 @@ async function createPayment(req, res) {
 
     const get_customer = await modelUser.getProfileById(user_id);
 
-    const get_order = await modelOrder.getOrder(user_id);
+    const get_order = await modelOrder.getOrderStatus(user_id);
+    console.log(get_order);
 
     if (!get_order.length) {
       return res.status(400).json({
@@ -351,7 +354,22 @@ async function createPayment(req, res) {
       transaction_token: transactionToken,
     };
 
-    const updateData = await modelOrder.updatePaymentToken(payloadUpdate);
+    // const updateData = await modelOrder.updatePaymentToken(payloadUpdate);
+    await modelOrder.updatePaymentToken(payloadUpdate, user_id);
+    // await modelOrder.updateOrderToken(payloadUpdate, user_id);
+
+    const payloadUpdateProduct = {
+      transaction_token: transactionToken,
+      order_id_payment: orderId,
+    };
+
+    for (const order of get_order) {
+      await modelOrder.updateOrderToken(
+        payloadUpdateProduct,
+        user_id,
+        order.product_id
+      );
+    }
 
     const url = `https://api.sandbox.midtrans.com/v2/${getPaymentId}/status`;
     const response = await axios.get(url, {
@@ -370,6 +388,7 @@ async function createPayment(req, res) {
     };
     console.log(orderId);
     await modelOrder.checkStatus(payloadStatus, orderId);
+
     res.send({
       status: true,
       message: "Success Create payment",
@@ -446,6 +465,12 @@ async function updateStatus(req, res) {
       payload,
       "status"
     )} WHERE order_id = ${order_id} 
+    returning *`;
+
+    await db`UPDATE product_order SET ${db(
+      payload,
+      "status"
+    )} WHERE order_id = ${order_id}
     returning *`;
 
     res.json({

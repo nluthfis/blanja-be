@@ -9,6 +9,17 @@ const getOrder = async (user_id) => {
     return error;
   }
 };
+
+const getOrderStatus = async (user_id) => {
+  try {
+    const query =
+      await db`SELECT * FROM product_order WHERE user_id = ${user_id} AND status = 'order_created' `;
+    return query;
+  } catch (error) {
+    return error;
+  }
+};
+
 const getPrice = async (user_id) => {
   try {
     const query =
@@ -30,7 +41,8 @@ const addOrder = async (payload) => {
       "product_size",
       "product_color",
       "total_price",
-      "shipping_price"
+      "shipping_price",
+      "status"
     )} returning *`;
     return query;
   } catch (error) {
@@ -60,7 +72,6 @@ const getOrderWithAddress = async (user_id) => {
     return error;
   }
 };
-
 const checkOrder = async (order_id, user_id) => {
   try {
     const query =
@@ -114,12 +125,12 @@ const getPaymentId = async (user_id) => {
     return error;
   }
 };
-const updatePaymentToken = async (payload) => {
+const updatePaymentToken = async (payload, user_id) => {
   try {
     const query = await db`UPDATE payment SET ${db(
       payload,
       "transaction_token"
-    )} returning *`;
+    )} WHERE user_id = ${user_id} returning *`;
     return query;
   } catch (error) {
     return error;
@@ -131,6 +142,21 @@ const checkStatus = async (payloadStatus, orderId) => {
       payloadStatus,
       "status"
     )} WHERE order_id = ${orderId} returning *`;
+    return query;
+  } catch (error) {
+    return error;
+  }
+};
+const updateOrderToken = async (payload, user_id, product_id) => {
+  try {
+    const query = await db`UPDATE product_order 
+      SET ${db(
+        payload,
+        "transaction_token",
+        "order_id_payment"
+      )} WHERE user_id = ${user_id} 
+      AND product_id = ${product_id}
+      RETURNING *`;
     return query;
   } catch (error) {
     return error;
@@ -150,4 +176,6 @@ module.exports = {
   getPaymentId,
   updatePaymentToken,
   checkStatus,
+  getOrderStatus,
+  updateOrderToken,
 };
