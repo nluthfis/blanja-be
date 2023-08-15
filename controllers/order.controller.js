@@ -436,11 +436,12 @@ async function checkStatus(req, res) {
 async function updateStatus(req, res) {
   try {
     const { order_id } = req.body;
+    const { transaction_status } = req.body;
 
     console.log(req.body, "req");
 
     const payload = {
-      status: "Success",
+      status: transaction_status,
     };
 
     await db`UPDATE payment SET ${db(
