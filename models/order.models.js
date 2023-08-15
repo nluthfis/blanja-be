@@ -9,7 +9,6 @@ const getOrder = async (user_id) => {
     return error;
   }
 };
-
 const getOrderStatus = async (user_id) => {
   try {
     const query =
@@ -19,7 +18,6 @@ const getOrderStatus = async (user_id) => {
     return error;
   }
 };
-
 const getPrice = async (user_id) => {
   try {
     const query =

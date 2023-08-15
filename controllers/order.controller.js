@@ -94,7 +94,7 @@ async function createOrder(req, res) {
     const productPrice = getProduct[0].product_price;
     const shipping_price = 20000;
     const totalPrice = productPrice * total_product + shipping_price;
-    const statusOrder = "order_created";
+    // const statusOrder = "order_created";
 
     const payload = {
       product_id: getProduct[0].product_id,
@@ -106,7 +106,7 @@ async function createOrder(req, res) {
       seller_id: seller_id,
       // address_id: adds_id,
       total_price: totalPrice,
-      status: statusOrder,
+      status: "order_created",
     };
 
     data = await modelOrder.addOrder(payload);
@@ -132,7 +132,7 @@ async function getAllOrder(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
-    const query = await modelOrder.getOrderStatus(user_id);
+    const query = await modelOrder.getOrder(user_id);
     // const query = await modelOrder.getOrderWithAddress(user_id);
 
     const product_order_data = [];
