@@ -452,7 +452,7 @@ async function updateStatus(req, res) {
     await db`UPDATE product_order SET ${db(
       payload,
       "status"
-    )} WHERE order_id = ${order_id}
+    )} WHERE order_id_payment = ${order_id}
     returning *`;
 
     res.json({
