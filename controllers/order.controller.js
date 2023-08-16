@@ -114,7 +114,15 @@ async function getAllOrder(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
-    const query = await modelOrder.getOrder(user_id);
+    let statusOrder = `${req?.query?.statusOrder}`;
+    console.log(statusOrder);
+    let query;
+    if (statusOrder != "") {
+      query = await modelOrder.getOrderStatus(user_id, statusOrder);
+    } else {
+      query = await modelOrder.getOrder(user_id);
+    }
+
     // const query = await modelOrder.getOrderWithAddress(user_id);
 
     const product_order_data = [];
@@ -281,10 +289,14 @@ async function createPayment(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
+    const { statusOrder, order_id_payment } = req.body;
+    console.log(statusOrder, order_id_payment);
 
     const get_customer = await modelUser.getProfileById(user_id);
-
-    const get_order = await modelOrder.getOrderStatus(user_id);
+    const get_order = await modelOrder.getOrderByOrderIdPayment(
+      user_id,
+      order_id_payment
+    );
     console.log(get_order);
 
     if (!get_order.length) {
@@ -294,7 +306,8 @@ async function createPayment(req, res) {
       });
     }
 
-    const get_price = await modelOrder.getPrice(user_id);
+    const get_price = await modelOrder.getPrice(user_id, order_id_payment);
+    console.log(get_price);
 
     totalPayment = get_price[0].total_price_sum;
 

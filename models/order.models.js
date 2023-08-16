@@ -9,20 +9,29 @@ const getOrder = async (user_id) => {
     return error;
   }
 };
-const getOrderStatus = async (user_id) => {
+const getOrderByOrderIdPayment = async (user_id, order_id_payment) => {
   try {
     const query =
-      await db`SELECT * FROM product_order WHERE user_id = ${user_id} AND status = 'order_created' `;
+      await db`SELECT * FROM product_order WHERE user_id = ${user_id} and order_id_payment = ${order_id_payment}`;
     return query;
   } catch (error) {
     return error;
   }
 };
-const getPrice = async (user_id) => {
+const getOrderStatus = async (user_id, statusOrder) => {
+  try {
+    const query =
+      await db`SELECT * FROM product_order WHERE user_id = ${user_id} AND status = ${statusOrder} `;
+    return query;
+  } catch (error) {
+    return error;
+  }
+};
+const getPrice = async (user_id, order_id_payment) => {
   try {
     const query =
       await db`SELECT SUM(CAST(product_order.total_price AS NUMERIC)) as total_price_sum
-        FROM product_order WHERE user_id = ${user_id}`;
+        FROM product_order WHERE user_id = ${user_id} AND order_id_payment = ${order_id_payment}`;
     return query;
   } catch (error) {
     return error;
@@ -176,4 +185,5 @@ module.exports = {
   checkStatus,
   getOrderStatus,
   updateOrderToken,
+  getOrderByOrderIdPayment,
 };
