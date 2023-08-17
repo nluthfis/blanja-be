@@ -289,14 +289,12 @@ async function createPayment(req, res) {
     const token = getToken(req);
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     const user_id = decoded.user_id;
-    const { statusOrder, order_id_payment } = req.body;
+    const { order_id_payment } = req.body;
+    const statusOrder = "order_created";
     console.log(statusOrder, order_id_payment);
-
     const get_customer = await modelUser.getProfileById(user_id);
-    const get_order = await modelOrder.getOrderByOrderIdPayment(
-      user_id,
-      order_id_payment
-    );
+    const get_order = await modelOrder.getOrderStatus(user_id, statusOrder);
+
     console.log(get_order);
 
     if (!get_order.length) {
@@ -306,17 +304,23 @@ async function createPayment(req, res) {
       });
     }
 
-    const get_price = await modelOrder.getPrice(user_id, order_id_payment);
-    console.log(get_price);
+    let totalPrices = 0;
+    for (const order of get_order) {
+      totalPrices += parseFloat(order.total_price);
+    }
+    console.log(totalPrices);
 
-    totalPayment = get_price[0].total_price_sum;
+    // const get_price = await modelOrder.getPrice(user_id, order_id_payment);
+    // console.log(get_price);
+
+    // totalPayment = get_price[0].total_price_sum;
 
     const { v4: uuidv4 } = require("uuid");
     const orderId = uuidv4();
 
     const payload = {
       user_id: user_id,
-      total_payment: totalPayment,
+      total_payment: totalPrices,
       order_id: orderId,
     };
 
@@ -333,7 +337,7 @@ async function createPayment(req, res) {
     let parameter = {
       transaction_details: {
         order_id: orderId,
-        gross_amount: totalPayment,
+        gross_amount: totalPrices,
       },
       customer_details: {
         first_name: get_customer[0].user_name,
